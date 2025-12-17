@@ -1,0 +1,12 @@
+{
+  "name": "Movie Recommendation System",
+  "description": "A Flask-based movie recommendation system using deep learning",
+  "repository": "https://github.com/yourusername/movie-recommendation-system",
+  "keywords": ["flask", "tensorflow", "machine-learning", "movie-recommendation"],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
+

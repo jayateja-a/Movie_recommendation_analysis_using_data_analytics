@@ -36,11 +36,32 @@ Steps
 2.	Open the visual studio code with the folder contents in separate workspace
 3.	cd <foldername> in terminal
 4.	Install dependencies: 
-5.	pip install -r requirements.txt
-6.	Place the dataset file (final_final_dataset.csv) in the project directory.
-7.	Run the Flask app: 
-8.	python app.py
-9.	Open your browser and navigate to http://127.0.0.1:5000/.
+   ```bash
+   pip install -r requirements.txt
+   ```
+5.	Place the dataset file (final_final_dataset.csv) in the project directory.
+6.	Run the Flask app: 
+   ```bash
+   python app.py
+   ```
+7.	Open your browser and navigate to http://127.0.0.1:5000/.
+
+**Note:** On first run, the model will be trained (takes 5-10 minutes). Subsequent runs will load the saved model instantly.
+
+## 🌐 Deployment
+
+This project is ready for free deployment! See `DEPLOYMENT_GUIDE.md` for detailed instructions.
+
+**Quick Deploy Options:**
+- **Render.com** (Recommended - No credit card needed)
+- **Railway.app** (Fast deployments)
+- **Fly.io** (Always-on free tier)
+- **PythonAnywhere** (Beginner-friendly)
+
+All deployment configuration files are included:
+- `Procfile` - For deployment platforms
+- `runtime.txt` - Python version specification
+- `.gitignore` - Excludes model files from git
 Dataset
 The project uses a movie dataset containing columns like:
 •	movie: Movie title

@@ -1,66 +1,119 @@
 from flask import Flask, request, render_template
 import pandas as pd
 import numpy as np
+import os
+import pickle
 from sklearn.preprocessing import LabelEncoder
-from tensorflow.keras.models import Model
+from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.layers import Embedding, Flatten, Dense, Input, Concatenate
 from tensorflow.keras.optimizers import Adam
 
+# Initialize Flask app
+app = Flask(__name__)
 
-# Load your dataset (ensure overview and revenue columns are included)
-data = pd.read_csv('final_final_dataset.csv')  # Replace with your dataset path
+# File paths for saved models and encoders
+MODEL_PATH = 'movie_recommendation_model.h5'
+ENCODERS_PATH = 'encoders.pkl'
+DATA_PATH = 'final_final_dataset.csv'
 
-# Preprocess the data
-data = data[['index', 'director', 'duration', 'genres', 'movie', 'language', 'country', 'year', 'rating', 'overview', 'revenue']]
-data = data.dropna()  # Drop rows with missing values
+def load_or_train_model():
+    """Load saved model and encoders if they exist, otherwise train and save them"""
+    
+    # Check if model and encoders exist
+    if os.path.exists(MODEL_PATH) and os.path.exists(ENCODERS_PATH):
+        print("Loading saved model and encoders...")
+        model = load_model(MODEL_PATH)
+        with open(ENCODERS_PATH, 'rb') as f:
+            encoders = pickle.load(f)
+        movie_encoder = encoders['movie_encoder']
+        genre_encoder = encoders['genre_encoder']
+        director_encoder = encoders['director_encoder']
+        
+        # Load and preprocess data
+        data = pd.read_csv(DATA_PATH)
+        data = data[['index', 'director', 'duration', 'genres', 'movie', 'language', 'country', 'year', 'rating', 'overview', 'revenue']]
+        data = data.dropna()
+        data['genres_list'] = data['genres'].str.split('|')
+        data['year'] = data['year'].astype(int)
+        data['movie_encoded'] = movie_encoder.transform(data['movie'])
+        data['genre_encoded'] = genre_encoder.transform(data['genres'])
+        data['director_encoded'] = director_encoder.transform(data['director'])
+        
+        print("Model and encoders loaded successfully!")
+        return model, data, movie_encoder, genre_encoder, director_encoder
+    
+    else:
+        print("Training new model...")
+        # Load your dataset (ensure overview and revenue columns are included)
+        data = pd.read_csv(DATA_PATH)
+        
+        # Preprocess the data
+        data = data[['index', 'director', 'duration', 'genres', 'movie', 'language', 'country', 'year', 'rating', 'overview', 'revenue']]
+        data = data.dropna()  # Drop rows with missing values
+        
+        # Encode categorical columns (movies, genres, director, etc.)
+        movie_encoder = LabelEncoder()
+        data['movie_encoded'] = movie_encoder.fit_transform(data['movie'])
+        
+        genre_encoder = LabelEncoder()
+        data['genre_encoded'] = genre_encoder.fit_transform(data['genres'])
+        
+        director_encoder = LabelEncoder()
+        data['director_encoded'] = director_encoder.fit_transform(data['director'])
+        
+        # Split the genres into lists of individual genres
+        data['genres_list'] = data['genres'].str.split('|')
+        
+        # Convert year to integer to avoid decimal values
+        data['year'] = data['year'].astype(int)
+        
+        # Prepare input data for the model
+        num_movies = len(movie_encoder.classes_)
+        num_genres = len(genre_encoder.classes_)
+        
+        # Model Definition (Matrix Factorization)
+        movie_input = Input(shape=(1,))
+        genre_input = Input(shape=(1,))
+        
+        movie_embedding = Embedding(num_movies, 50)(movie_input)
+        genre_embedding = Embedding(num_genres, 10)(genre_input)
+        
+        movie_flat = Flatten()(movie_embedding)
+        genre_flat = Flatten()(genre_embedding)
+        
+        # Concatenate the embeddings
+        concat = Concatenate(axis=-1)([movie_flat, genre_flat])
+        
+        # Dense layers for final prediction
+        dense = Dense(64, activation='relu')(concat)
+        output = Dense(1, activation='linear')(dense)
+        
+        # Build and compile the model
+        model = Model(inputs=[movie_input, genre_input], outputs=output)
+        model.compile(optimizer=Adam(), loss='mean_squared_error')
+        
+        # Prepare training data
+        X_train = [data['movie_encoded'].values, data['genre_encoded'].values]
+        y_train = data['rating'].values
+        
+        # Train the model
+        print("Training model (this may take a few minutes)...")
+        model.fit(X_train, y_train, epochs=10, batch_size=32, validation_split=0.2, verbose=1)
+        
+        # Save model and encoders
+        model.save(MODEL_PATH)
+        with open(ENCODERS_PATH, 'wb') as f:
+            pickle.dump({
+                'movie_encoder': movie_encoder,
+                'genre_encoder': genre_encoder,
+                'director_encoder': director_encoder
+            }, f)
+        
+        print("Model and encoders saved successfully!")
+        return model, data, movie_encoder, genre_encoder, director_encoder
 
-# Encode categorical columns (movies, genres, director, etc.)
-movie_encoder = LabelEncoder()
-data['movie_encoded'] = movie_encoder.fit_transform(data['movie'])
-
-genre_encoder = LabelEncoder()
-data['genre_encoded'] = genre_encoder.fit_transform(data['genres'])
-
-director_encoder = LabelEncoder()
-data['director_encoded'] = director_encoder.fit_transform(data['director'])
-
-# Split the genres into lists of individual genres
-data['genres_list'] = data['genres'].str.split('|')
-
-# Convert year to integer to avoid decimal values
-data['year'] = data['year'].astype(int)
-
-# Prepare input data for the model
-num_movies = len(movie_encoder.classes_)
-num_genres = len(genre_encoder.classes_)
-
-# Model Definition (Matrix Factorization)
-movie_input = Input(shape=(1,))
-genre_input = Input(shape=(1,))
-
-movie_embedding = Embedding(num_movies, 50)(movie_input)
-genre_embedding = Embedding(num_genres, 10)(genre_input)
-
-movie_flat = Flatten()(movie_embedding)
-genre_flat = Flatten()(genre_embedding)
-
-# Concatenate the embeddings
-concat = Concatenate(axis=-1)([movie_flat, genre_flat])
-
-# Dense layers for final prediction
-dense = Dense(64, activation='relu')(concat)
-output = Dense(1, activation='linear')(dense)
-
-# Build and compile the model
-model = Model(inputs=[movie_input, genre_input], outputs=output)
-model.compile(optimizer=Adam(), loss='mean_squared_error')
-
-# Prepare training data
-X_train = [data['movie_encoded'].values, data['genre_encoded'].values]
-y_train = data['rating'].values
-
-# Train the model
-model.fit(X_train, y_train, epochs=10, batch_size=32, validation_split=0.2)
+# Load or train model on startup
+model, data, movie_encoder, genre_encoder, director_encoder = load_or_train_model()
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -163,4 +216,5 @@ def recommend_movies(input_movie, data, model, movie_encoder, genre_encoder, dir
     return detailed_recommendations
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
