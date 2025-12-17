@@ -46,7 +46,7 @@ This guide will help you deploy your Movie Recommendation System to the internet
    - Configure:
      - **Name:** movie-recommendation-system (or any name)
      - **Environment:** Python 3
-     - **Build Command:** `pip install -r requirements.txt`
+     - **Build Command:** `pip install --upgrade pip && pip install -r requirements.txt`
      - **Start Command:** `gunicorn app:app`
      - **Plan:** Free
    - Click "Create Web Service"
@@ -244,6 +244,12 @@ The 15-minute spin-down is fine for a personal project - it just takes 30 second
 - Ensure all dependencies are in `requirements.txt`
 - Verify `final_final_dataset.csv` is in the repository
 
+### TensorFlow version errors:
+- If you see "Could not find a version that satisfies the requirement tensorflow==X.X.X":
+  - The `requirements.txt` has been updated to use TensorFlow 2.20.0 (latest available)
+  - Make sure you've pulled the latest changes from GitHub
+  - If issues persist, try: `tensorflow>=2.14.0` (flexible version)
+
 ### Model training takes too long:
 - First deployment always takes longer
 - Model is saved after first training, so subsequent deployments are faster
@@ -255,6 +261,14 @@ The 15-minute spin-down is fine for a personal project - it just takes 30 second
 ### Port errors:
 - Most platforms set PORT automatically
 - If needed, use: `port = int(os.environ.get('PORT', 5000))` (already in app.py)
+
+### Build fails:
+- Check the build logs for specific error messages
+- Ensure Python version in `runtime.txt` is compatible (3.11.5)
+- Try clearing build cache on Render and redeploying
+- **Pandas compilation errors:** The build command now upgrades pip first, which helps install pre-built wheels. If you still see compilation errors:
+  - Make sure build command is: `pip install --upgrade pip && pip install -r requirements.txt`
+  - The updated requirements.txt uses newer versions with pre-built wheels
 
 ---
 
