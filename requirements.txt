@@ -1,6 +1,6 @@
-# Build tools - install first
-setuptools==69.0.0
-wheel==0.43.0
+# Build tools - install first (use compatible versions)
+setuptools>=65.0.0
+wheel>=0.40.0
 
 # Core scientific computing - versions with pre-built wheels for Python 3.11
 numpy==1.24.3

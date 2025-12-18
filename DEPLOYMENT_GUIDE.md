@@ -46,13 +46,14 @@ This guide will help you deploy your Movie Recommendation System to the internet
    - Configure:
      - **Name:** movie-recommendation-system (or any name)
      - **Environment:** Python 3
-     - **Python Version:** 3.11.9 (set in Environment Variables if available, or ensure runtime.txt is present)
-     - **Build Command:** `pip install --upgrade pip setuptools wheel && pip install --only-binary :all: -r requirements.txt || pip install -r requirements.txt`
+     - **Build Command:** `python3 -m pip install --upgrade pip setuptools wheel && python3 -m pip install -r requirements.txt`
      - **Start Command:** `gunicorn app:app`
      - **Plan:** Free
-     - **Environment Variables (optional but recommended):**
-       - `PYTHON_VERSION=3.11.9`
-       - `PIP_ONLY_BINARY=:all:` (forces use of pre-built wheels)
+     - **Environment Variables (REQUIRED - set these!):**
+       - `PYTHON_VERSION` = `3.11.9` ⚠️ **CRITICAL: Must set this!**
+       - `RUNTIME_VERSION` = `3.11.9` (if available)
+     
+   **⚠️ IMPORTANT:** After creating the service, go to Settings → Environment Variables and manually add `PYTHON_VERSION=3.11.9`. Render may default to Python 3.13 which causes build failures!
    - Click "Create Web Service"
    - Wait for deployment (first time takes 5-10 minutes to train model)
 
