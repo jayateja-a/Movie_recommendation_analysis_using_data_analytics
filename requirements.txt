@@ -1,11 +1,20 @@
-setuptools>=68.0.0
-wheel>=0.41.0
-numpy==1.26.4
-pandas==2.2.2
-scikit-learn==1.5.1
-tensorflow==2.20.0
-h5py==3.11.0
-matplotlib==3.9.0
-seaborn==0.13.2
-flask==3.0.3
-gunicorn==23.0.0
+# Build tools - install first
+setuptools==69.0.0
+wheel==0.43.0
+
+# Core scientific computing - versions with pre-built wheels for Python 3.11
+numpy==1.24.3
+pandas==2.1.4
+scikit-learn==1.3.2
+
+# TensorFlow - use available version (2.20.0 was confirmed available)
+tensorflow>=2.14.0
+h5py==3.10.0
+
+# Visualization
+matplotlib==3.8.2
+seaborn==0.13.0
+
+# Web framework
+flask==3.0.0
+gunicorn==21.2.0
