@@ -124,13 +124,20 @@ def index():
 
 @app.route("/recommend", methods=["POST"])
 def recommend():
-    input_movie = request.form["movie"]
-    recommendations = recommend_movies(input_movie, data, model, movie_encoder, genre_encoder, director_encoder)
-    
-    if recommendations:
-        return render_template("recommendations.html", input_movie=input_movie, recommendations=recommendations)
-    else:
-        return render_template("error.html", movie=input_movie)
+    try:
+        input_movie = request.form["movie"].strip()
+        if not input_movie:
+            return render_template("error.html", movie="")
+        
+        recommendations = recommend_movies(input_movie, data, model, movie_encoder, genre_encoder, director_encoder)
+        
+        if recommendations:
+            return render_template("recommendations.html", input_movie=input_movie, recommendations=recommendations)
+        else:
+            return render_template("error.html", movie=input_movie)
+    except Exception as e:
+        print(f"Error in recommend: {str(e)}")
+        return render_template("error.html", movie=input_movie if 'input_movie' in locals() else "")
 
 def format_revenue(value):
     if value >= 1_000_000_000:
@@ -149,69 +156,78 @@ def recommend_movies(input_movie, data, model, movie_encoder, genre_encoder, dir
     
     # Encode the input movie and extract its attributes
     input_movie_encoded = movie_encoder.transform([input_movie])[0]
-    input_movie_genres = data[data['movie_encoded'] == input_movie_encoded]['genres_list'].values[0]
-    input_movie_year = data[data['movie_encoded'] == input_movie_encoded]['year'].values[0]
-    input_movie_director = data[data['movie_encoded'] == input_movie_encoded]['director'].values[0]
+    input_movie_data = data[data['movie_encoded'] == input_movie_encoded].iloc[0]
+    input_movie_genres = set(input_movie_data['genres_list'])
+    input_movie_year = input_movie_data['year']
+    input_movie_director = input_movie_data['director']
     
-    all_movies = data.copy()
-    movie_indices = all_movies['movie_encoded'].values
-    genre_indices = all_movies['genre_encoded'].values
-    predictions = model.predict([movie_indices, genre_indices])
+    # Filter out the input movie first to reduce computation
+    other_movies = data[data['movie'] != input_movie].copy()
     
-    recommended_movies = pd.DataFrame({
-        'movie': all_movies['movie'].values,
-        'director': all_movies['director'].values,
-        'rating': all_movies['rating'].values,
-        'year': all_movies['year'].values,
-        'genres': all_movies['genres'].values,
-        'genres_list': all_movies['genres_list'].values,
-        'overview': all_movies['overview'].values,
-        'revenue': all_movies['revenue'].values
-    })
+    # Optimized genre overlap calculation
+    input_genres_set = input_movie_genres
+    input_genres_len = len(input_genres_set) if len(input_genres_set) > 0 else 1
     
-    def calculate_genre_overlap(movie_genres):
-        common_genres = set(input_movie_genres).intersection(set(movie_genres))
-        return len(common_genres) / len(set(input_movie_genres))
+    def calc_overlap(genres):
+        if isinstance(genres, list) and len(genres) > 0:
+            return len(set(genres).intersection(input_genres_set)) / input_genres_len
+        return 0.0
     
-    recommended_movies['genre_overlap'] = recommended_movies['genres_list'].apply(calculate_genre_overlap)
-    recommended_movies['director_match'] = recommended_movies['director'].apply(lambda x: x == input_movie_director)
+    # Use list comprehension (faster than apply for simple operations)
+    other_movies['genre_overlap'] = [calc_overlap(g) for g in other_movies['genres_list']]
     
-    same_year_movies = recommended_movies[recommended_movies['year'] == input_movie_year]
-    same_year_movies = same_year_movies[same_year_movies['genre_overlap'] >= min_genre_overlap]
-    same_year_movies = same_year_movies.sort_values(by=['genre_overlap', 'rating'], ascending=[False, False])
+    # Filter by minimum genre overlap first (reduces dataset size)
+    filtered_movies = other_movies[other_movies['genre_overlap'] >= min_genre_overlap].copy()
     
-    director_match_movies = recommended_movies[recommended_movies['director_match']]
+    # Add director match flag
+    filtered_movies['director_match'] = (filtered_movies['director'] == input_movie_director)
     
-    # Combine same year movies and at least one movie with the same director
-    combined_recommendations = pd.concat([same_year_movies, director_match_movies]).drop_duplicates(subset='movie')
+    # Prioritize: same year, same director, high rating
+    filtered_movies['same_year'] = (filtered_movies['year'] == input_movie_year)
     
-    # Exclude the input movie
-    combined_recommendations = combined_recommendations[combined_recommendations['movie'] != input_movie]
-    combined_recommendations = combined_recommendations.sort_values(by=['genre_overlap', 'rating'], ascending=[False, False])
+    # Create a composite score for sorting
+    filtered_movies['score'] = (
+        filtered_movies['genre_overlap'] * 0.4 +  # Genre match weight
+        filtered_movies['same_year'].astype(int) * 0.3 +  # Same year bonus
+        filtered_movies['director_match'].astype(int) * 0.2 +  # Same director bonus
+        (filtered_movies['rating'] / 10.0) * 0.1  # Rating weight
+    )
     
-    # Limit the number of recommendations
-    combined_recommendations = combined_recommendations.head(num_recommendations)
+    # Sort by composite score and rating
+    filtered_movies = filtered_movies.sort_values(
+        by=['score', 'rating', 'genre_overlap'], 
+        ascending=[False, False, False]
+    )
     
+    # Get top recommendations
+    top_recommendations = filtered_movies.head(num_recommendations * 2)  # Get more, then filter
+    
+    # Build detailed recommendations
     detailed_recommendations = []
-    for i, row in combined_recommendations.iterrows():
-        reason = f"Recommended because it shares {int(row['genre_overlap'] * 100)}% genre match with '{input_movie}'."
-        if row['year'] == input_movie_year:
-            reason += f" It was released in the same year ({input_movie_year})."
+    for idx, row in top_recommendations.iterrows():
+        reason_parts = [f"Recommended because it shares {int(row['genre_overlap'] * 100)}% genre match with '{input_movie}'."]
+        
+        if row['same_year']:
+            reason_parts.append(f" It was released in the same year ({input_movie_year}).")
         if row['rating'] >= high_rating_threshold:
-            reason += f" Also, it has a high rating of {row['rating']}."
-        if row['director'] == input_movie_director:
-            reason += f" Moreover, it was directed by the same director ({input_movie_director})."
+            reason_parts.append(f" Also, it has a high rating of {row['rating']:.1f}.")
+        if row['director_match']:
+            reason_parts.append(f" Moreover, it was directed by the same director ({input_movie_director}).")
         
         detailed_recommendations.append({
             'movie': row['movie'],
-            'rating': row['rating'],
-            'year': row['year'],
+            'rating': float(row['rating']),
+            'year': int(row['year']),
             'genres': row['genres'],
-            'genre_overlap': row['genre_overlap'],
+            'genre_overlap': float(row['genre_overlap']),
             'overview': row['overview'],
             'revenue': format_revenue(row['revenue']),
-            'reason_for_recommendation': reason
+            'reason_for_recommendation': ' '.join(reason_parts)
         })
+        
+        # Stop when we have enough recommendations
+        if len(detailed_recommendations) >= num_recommendations:
+            break
     
     return detailed_recommendations
 
