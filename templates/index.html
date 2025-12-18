@@ -1,110 +1,356 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Movie Recommendation System</title>
-    <style>
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: url("../static/images/mal.jpg") no-repeat center center
-          fixed;
-        background-size: cover;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        margin: 0;
-        color: #ecf0f1;
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Primary SEO Meta Tags -->
+  <title>AJT's CineMatch – AI Movie Recommendation System | Personalized Movie Recommendations</title>
+  <meta name="title" content="AJT's CineMatch – AI Movie Recommendation System | Personalized Movie Recommendations">
+  <meta name="description" content="Discover your next favorite movie with AJT's CineMatch, an advanced AI-powered movie recommendation system. Get personalized movie suggestions based on genre, director, ratings, and more using machine learning algorithms.">
+  <meta name="keywords" content="AJT's CineMatch, movie recommendation system, AI movie recommender, personalized movie recommendations, machine learning movie recommendation, best movie recommendation website, content-based filtering, collaborative filtering">
+  <meta name="author" content="AJT's CineMatch">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://ajt-cinematch.onrender.com/">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ajt-cinematch.onrender.com/">
+  <meta property="og:title" content="AJT's CineMatch – AI Movie Recommendation System">
+  <meta property="og:description" content="Discover your next favorite movie with AJT's CineMatch. Get personalized movie recommendations powered by AI and machine learning.">
+  <meta property="og:site_name" content="AJT's CineMatch">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://ajt-cinematch.onrender.com/">
+  <meta name="twitter:title" content="AJT's CineMatch – AI Movie Recommendation System">
+  <meta name="twitter:description" content="Discover your next favorite movie with AJT's CineMatch. Get personalized movie recommendations powered by AI and machine learning.">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --primary-color: #1abc9c;
+      --primary-dark: #16a085;
+      --secondary-color: #34495e;
+      --text-light: #ecf0f1;
+      --text-dark: #2c3e50;
+      --bg-dark: #2c3e50;
+      --bg-card: #34495e;
+      --accent: #3498db;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-light);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    /* Header */
+    header {
+      background: rgba(44, 62, 80, 0.95);
+      padding: 1rem 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+    
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 4rem 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      margin-bottom: 1rem;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      color: rgba(255,255,255,0.9);
+    }
+    
+    /* Search Form */
+    .search-form {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      max-width: 600px;
+      margin: 2rem auto;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+    
+    .btn-primary {
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    
+    /* Content Sections */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+    
+    section {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+      color: var(--text-dark);
+    }
+    
+    section h2 {
+      color: var(--primary-color);
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    
+    section h3 {
+      color: var(--secondary-color);
+      font-size: 1.5rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    section p {
+      margin-bottom: 1rem;
+      line-height: 1.8;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .feature-card {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .feature-card h3 {
+      color: var(--primary-color);
+      font-size: 1.2rem;
+      margin-top: 0;
+    }
+    
+    /* Footer */
+    footer {
+      background: rgba(44, 62, 80, 0.95);
+      text-align: center;
+      padding: 2rem;
+      margin-top: 4rem;
+    }
+    
+    footer p {
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+    }
+    
+    footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+    
+    footer a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero {
+        padding: 2rem 1rem;
       }
-
-      form {
-        /* background: rgba(255, 255, 255, 0.5); */
-        background: rgba(0, 0, 0, 0.5);
-        border-radius: 8px;
-        padding: 15px 30px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        width: 80%;
-        max-width: 500px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+      
+      .search-form {
+        padding: 1.5rem;
       }
-
-      h1 {
-        color: #fff;
-        font-size: 2.5rem;
-        margin-bottom: 15px;
-        text-align: center;
+      
+      section {
+        padding: 1.5rem;
       }
-
-      input[type="text"] {
-        padding: 10px;
-        width: 100%;
-        border: 1px solid #1abc9c;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        font-size: 1.2rem;
-        color: #2c3e50;
-        background-color: #ecf0f1;
-        box-sizing: border-box;
+      
+      nav {
+        padding: 0 1rem;
       }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/" class="logo" aria-label="AJT's CineMatch Home">AJT's CineMatch</a>
+    </nav>
+  </header>
 
-      button {
-        /* padding: 15px 25px; */
-        padding: 10px;
-        background-color: #1abc9c;
-        color: #e0e6ed;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 1.2rem;
-        transition: background-color 0.3s;
-        width: 100%;
-        box-sizing: border-box;
-        margin-bottom: 10px;
-      }
+  <main>
+    <section class="hero" aria-labelledby="main-heading">
+      <h1 id="main-heading">AJT's CineMatch – AI Movie Recommendation System</h1>
+      <p>Discover your next favorite movie with personalized AI-powered recommendations</p>
+      
+      <form action="/recommend" method="POST" class="search-form" aria-label="Movie search form">
+        <div class="form-group">
+          <label for="movie-input">Enter a movie name</label>
+          <input 
+            type="text" 
+            id="movie-input"
+            name="movie" 
+            placeholder="e.g., The Dark Knight, Inception, Pulp Fiction..."
+            required
+            aria-required="true"
+            aria-describedby="movie-help"
+          >
+          <small id="movie-help" style="color: #666; display: block; margin-top: 0.5rem;">
+            Enter any movie from our database to get personalized recommendations
+          </small>
+        </div>
+        <button type="submit" class="btn-primary">Get AI Recommendations</button>
+      </form>
+    </section>
 
-      button:hover {
-        background-color: #16a085;
-      }
+    <section aria-labelledby="how-it-works">
+      <h2 id="how-it-works">How AJT's CineMatch Works</h2>
+      <p>
+        AJT's CineMatch leverages cutting-edge artificial intelligence and machine learning algorithms to provide you with highly personalized movie recommendations. Our system uses a hybrid approach combining content-based filtering and collaborative filtering techniques to understand your preferences and suggest movies you'll love.
+      </p>
+      
+      <h3>Content-Based Filtering</h3>
+      <p>
+        Our content-based filtering algorithm analyzes the characteristics of movies you enjoy, including genres, directors, release years, and ratings. When you search for a movie, AJT's CineMatch identifies similar films based on these attributes, ensuring you discover movies that match your taste profile.
+      </p>
+      
+      <h3>Collaborative Filtering</h3>
+      <p>
+        Using advanced matrix factorization techniques with deep learning embeddings, our collaborative filtering system identifies patterns in movie preferences. This allows AJT's CineMatch to recommend movies that users with similar tastes have enjoyed, expanding your cinematic horizons beyond your current preferences.
+      </p>
+      
+      <h3>Hybrid Recommendation Engine</h3>
+      <p>
+        By combining both content-based and collaborative filtering approaches, AJT's CineMatch delivers the most accurate and diverse movie recommendations. Our AI analyzes genre overlap, director matches, release year similarities, and rating patterns to curate a personalized list of movies tailored specifically for you.
+      </p>
+    </section>
 
-      @media (max-width: 768px) {
-        body {
-          padding: 20px;
-        }
+    <section aria-labelledby="features">
+      <h2 id="features">Features & Benefits</h2>
+      <div class="features-grid">
+        <article class="feature-card">
+          <h3>AI-Powered Recommendations</h3>
+          <p>Our machine learning algorithms continuously learn and improve to provide better movie suggestions based on your preferences.</p>
+        </article>
+        
+        <article class="feature-card">
+          <h3>Multiple Filtering Methods</h3>
+          <p>Get recommendations based on genre similarity, director preferences, release year, and rating patterns all in one place.</p>
+        </article>
+        
+        <article class="feature-card">
+          <h3>Detailed Movie Information</h3>
+          <p>Each recommendation includes comprehensive details including genres, ratings, revenue, overview, and personalized reasons for the suggestion.</p>
+        </article>
+        
+        <article class="feature-card">
+          <h3>Fast & Reliable</h3>
+          <p>Optimized for speed, AJT's CineMatch delivers recommendations in seconds, ensuring a smooth and responsive user experience.</p>
+        </article>
+      </div>
+    </section>
 
-        form {
-          padding: 20px;
-        }
+    <section aria-labelledby="why-choose">
+      <h2 id="why-choose">Why Choose AJT's CineMatch?</h2>
+      <p>
+        AJT's CineMatch stands out as one of the best movie recommendation websites available today. Unlike simple genre-based filters, our AI movie recommendation system understands the nuanced relationships between movies, directors, and viewer preferences. Whether you're looking for films similar to your favorites or want to explore new genres, AJT's CineMatch provides intelligent, personalized suggestions that help you discover your next cinematic adventure.
+      </p>
+      <p>
+        Our platform is designed for movie enthusiasts who want more than just basic recommendations. With AJT's CineMatch, you get detailed explanations for each suggestion, helping you understand why a particular movie was recommended. This transparency builds trust and helps you make informed decisions about what to watch next.
+      </p>
+      <p>
+        Experience the future of movie discovery with AJT's CineMatch. Our machine learning movie recommendation system is constantly evolving, incorporating the latest advances in AI to provide you with increasingly accurate and relevant suggestions. Start exploring today and let AI guide you to your next favorite film.
+      </p>
+    </section>
+  </main>
 
-        h1 {
-          font-size: 2rem;
-        }
-
-        input[type="text"] {
-          font-size: 1rem;
-          padding: 10px;
-        }
-
-        button {
-          padding: 12px 20px;
-          font-size: 1rem;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <form action="/recommend" method="POST">
-      <h1>Movie Recommendation System</h1>
-      <input
-        type="text"
-        name="movie"
-        placeholder="Enter a movie name..."
-        required
-      />
-      <button type="submit">Get Recommendations</button>
-    </form>
-  </body>
+  <footer>
+    <p>&copy; 2024 AJT's CineMatch. All rights reserved.</p>
+    <p>
+      <a href="/">Home</a> | 
+      <a href="/recommend">Get Recommendations</a>
+    </p>
+    <p><small>AI-Powered Movie Recommendation System</small></p>
+  </footer>
+</body>
 </html>

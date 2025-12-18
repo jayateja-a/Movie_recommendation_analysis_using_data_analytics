@@ -1,115 +1,329 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Movie Recommendations</title>
-    <style>
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #2c3e50;
-        color: #ecf0f1;
-        margin: 0;
-        padding: 0;
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Primary SEO Meta Tags -->
+  <title>Personalized Movie Recommendations | AJT's CineMatch</title>
+  <meta name="title" content="Personalized Movie Recommendations | AJT's CineMatch">
+  <meta name="description" content="View your personalized AI-powered movie recommendations from AJT's CineMatch. Discover movies similar to your favorites based on genre, director, ratings, and more.">
+  <meta name="keywords" content="AJT's CineMatch, movie recommendations, personalized movie suggestions, AI movie recommendations, movie recommendation system">
+  <meta name="author" content="AJT's CineMatch">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://ajt-cinematch.onrender.com/recommend">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ajt-cinematch.onrender.com/recommend">
+  <meta property="og:title" content="Personalized Movie Recommendations | AJT's CineMatch">
+  <meta property="og:description" content="Discover personalized movie recommendations powered by AI. Find your next favorite film with AJT's CineMatch.">
+  <meta property="og:site_name" content="AJT's CineMatch">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://ajt-cinematch.onrender.com/recommend">
+  <meta name="twitter:title" content="Personalized Movie Recommendations | AJT's CineMatch">
+  <meta name="twitter:description" content="Discover personalized movie recommendations powered by AI. Find your next favorite film with AJT's CineMatch.">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --primary-color: #1abc9c;
+      --primary-dark: #16a085;
+      --secondary-color: #34495e;
+      --text-light: #ecf0f1;
+      --text-dark: #2c3e50;
+      --bg-dark: #2c3e50;
+      --bg-card: #34495e;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-light);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    /* Header */
+    header {
+      background: rgba(44, 62, 80, 0.95);
+      padding: 1.5rem 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    header .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    
+    header h1 {
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+    }
+    
+    header p {
+      color: rgba(236, 240, 241, 0.8);
+      font-size: 1rem;
+    }
+    
+    /* Main Content */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    /* Info Section */
+    .info-section {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      color: var(--text-dark);
+    }
+    
+    .info-section h2 {
+      color: var(--primary-color);
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+    
+    .info-section p {
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+    
+    /* Recommendations Grid */
+    .recommendations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    /* Movie Card */
+    article.recommendation {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      color: var(--text-dark);
+    }
+    
+    article.recommendation:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+    
+    article.recommendation h2 {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 0.5rem;
+    }
+    
+    article.recommendation .movie-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    
+    article.recommendation .movie-meta span {
+      background: #f0f0f0;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      color: var(--text-dark);
+    }
+    
+    article.recommendation .rating {
+      background: var(--primary-color) !important;
+      color: white !important;
+      font-weight: 600;
+    }
+    
+    article.recommendation .overview {
+      margin: 1rem 0;
+      line-height: 1.7;
+      color: #555;
+    }
+    
+    article.recommendation .reason {
+      background: #e8f5e9;
+      padding: 1rem;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary-color);
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #2e7d32;
+    }
+    
+    /* Navigation */
+    .nav-links {
+      text-align: center;
+      margin: 2rem 0;
+    }
+    
+    .btn-link {
+      display: inline-block;
+      padding: 0.75rem 2rem;
+      background: var(--primary-color);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background 0.3s, transform 0.2s;
+      margin: 0.5rem;
+    }
+    
+    .btn-link:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    .btn-link-secondary {
+      background: transparent;
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+    
+    .btn-link-secondary:hover {
+      background: var(--primary-color);
+      color: white;
+    }
+    
+    /* Footer */
+    footer {
+      background: rgba(44, 62, 80, 0.95);
+      text-align: center;
+      padding: 2rem;
+      margin-top: 4rem;
+    }
+    
+    footer p {
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+    }
+    
+    footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+    
+    footer a:hover {
+      text-decoration: underline;
+    }
+    
+    /* No Results */
+    .no-results {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 3rem;
+      text-align: center;
+      color: var(--text-dark);
+    }
+    
+    .no-results h2 {
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .recommendations-grid {
+        grid-template-columns: 1fr;
       }
-
-      header {
-        background: #34495e;
-        padding: 20px;
-        text-align: center;
-        border-bottom: 3px solid #16a085;
+      
+      main {
+        padding: 1rem;
       }
-
-      header h1 {
-        margin: 0;
-        font-size: 2.5rem;
+      
+      header .container {
+        padding: 0 1rem;
       }
-
-      .container {
-        max-width: 800px;
-        margin: 20px auto;
-        padding: 20px;
-      }
-
-      .recommendation {
-        background: #34495e;
-        border: 2px solid #16a085;
-        border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s, box-shadow 0.2s;
-        overflow-wrap: break-word;
-        word-wrap: break-word;
-        hyphens: auto;
-      }
-
-      .recommendation:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-      }
-
-      .recommendation h2 {
-        color: #1abc9c;
-        margin: 0 0 10px;
-      }
-
-      .recommendation p {
-        margin: 5px 0;
-        line-height: 1.6;
-        text-align: justify;
-      }
-
-      .recommendation strong {
-        color: #ecf0f1;
-      }
-
-      .back-link {
-        display: inline-block;
-        margin-top: 20px;
-        text-decoration: none;
-        color: #1abc9c;
-        font-weight: bold;
-        border: 2px solid #1abc9c;
-        padding: 10px 20px;
-        border-radius: 5px;
-        transition: background-color 0.3s, color 0.3s;
-      }
-
-      .back-link:hover {
-        background-color: #1abc9c;
-        color: #2c3e50;
-      }
-
-      footer {
-        text-align: center;
-        margin-top: 20px;
-        font-size: 0.9rem;
-        color: #95a5a6;
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <h1>Movie Recommendations for "{{ input_movie }}"</h1>
-    </header>
+    }
+  </style>
+</head>
+<body>
+  <header>
     <div class="container">
-      {% if recommendations %} {% for rec in recommendations %}
-      <div class="recommendation">
-        <h2>{{ rec.movie }} ({{ rec.year }})</h2>
-        <p><strong>Genres:</strong> {{ rec.genres }}</p>
-        <p><strong>Rating:</strong> {{ rec.rating }}</p>
-        <p><strong>Overview:</strong> {{ rec.overview }}</p>
-        <p><strong>Revenue:</strong> {{ rec.revenue }}</p>
-        <p><strong>Reason:</strong> {{ rec.reason_for_recommendation }}</p>
-      </div>
-      {% endfor %} {% else %}
-      <p>No recommendations found for "{{ input_movie }}".</p>
-      {% endif %}
-      <a href="/" class="back-link">Go Back</a>
+      <h1>Movie Recommendations for "{{ input_movie }}"</h1>
+      <p>Personalized AI-powered suggestions from AJT's CineMatch</p>
     </div>
-    <footer>
-      <p>&copy; 2024 Movie Recommender. All rights reserved.</p>
-    </footer>
-  </body>
+  </header>
+
+  <main>
+    <section class="info-section" aria-labelledby="how-generated">
+      <h2 id="how-generated">How These Recommendations Were Generated</h2>
+      <p>
+        These personalized movie recommendations from AJT's CineMatch are powered by advanced machine learning algorithms. Our AI analyzes the movie you searched for and identifies similar films based on multiple factors including genre overlap, director matches, release year, and rating patterns.
+      </p>
+      <p>
+        Each recommendation includes a detailed explanation of why it was suggested, helping you understand the connection to your original movie choice. Our system uses content-based filtering to match movie characteristics and collaborative filtering to identify patterns in viewer preferences, ensuring you receive the most relevant and diverse recommendations possible.
+      </p>
+    </section>
+
+    {% if recommendations %}
+    <div class="recommendations-grid" role="list" aria-label="Movie recommendations">
+      {% for rec in recommendations %}
+      <article class="recommendation" role="listitem" itemscope itemtype="https://schema.org/Movie">
+        <h2 itemprop="name">{{ rec.movie }}</h2>
+        
+        <div class="movie-meta">
+          <span class="rating" itemprop="aggregateRating" itemscope itemtype="https://schema.org/AggregateRating">
+            <meta itemprop="ratingValue" content="{{ rec.rating }}">
+            Rating: {{ rec.rating }}/10
+          </span>
+          <span itemprop="datePublished">{{ rec.year }}</span>
+          <span itemprop="genre">{{ rec.genres }}</span>
+          <span>Revenue: {{ rec.revenue }}</span>
+        </div>
+        
+        <div class="overview" itemprop="description">
+          <strong>Overview:</strong> {{ rec.overview }}
+        </div>
+        
+        <div class="reason" itemprop="review" itemscope itemtype="https://schema.org/Review">
+          <strong>Why Recommended:</strong>
+          <p itemprop="reviewBody">{{ rec.reason_for_recommendation }}</p>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-results">
+      <h2>No Recommendations Found</h2>
+      <p>We couldn't find any recommendations for "{{ input_movie }}". This might be because the movie isn't in our database, or it may need to be spelled exactly as it appears in our system.</p>
+      <p>Try searching for another movie or check the spelling of your search term.</p>
+    </div>
+    {% endif %}
+
+    <nav class="nav-links" aria-label="Navigation">
+      <a href="/" class="btn-link">Search Another Movie</a>
+      <a href="/" class="btn-link btn-link-secondary">Back to Home</a>
+    </nav>
+  </main>
+
+  <footer>
+    <p>&copy; 2024 AJT's CineMatch. All rights reserved.</p>
+    <p>
+      <a href="/">Home</a> | 
+      <a href="/recommend">Get Recommendations</a>
+    </p>
+    <p><small>AI-Powered Movie Recommendation System by Jayateja Alugolu</small></p>
+  </footer>
+</body>
 </html>

@@ -122,6 +122,14 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
+@app.route("/robots.txt")
+def robots():
+    return app.send_static_file("robots.txt")
+
+@app.route("/sitemap.xml")
+def sitemap():
+    return app.send_static_file("sitemap.xml")
+
 @app.route("/recommend", methods=["POST"])
 def recommend():
     try:
